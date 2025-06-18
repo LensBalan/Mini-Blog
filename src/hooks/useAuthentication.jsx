@@ -1,4 +1,4 @@
-import {db} from "../firebase/config";
+import {db, auth} from "../firebase/config";
 
 import {
     getAuth,
@@ -18,14 +18,13 @@ export const useAuthentication = () => {
     // evitar vazamento de memória
     const [cancelled, setCancelled] = useState(false);
 
-    const auth = getAuth();
-
     function checkIfisCancelled() {
         if(cancelled) {
             return;
         }
     }
 
+    //register
     const createUser = async (data) => {
         checkIfisCancelled();
 
@@ -68,6 +67,42 @@ export const useAuthentication = () => {
 
     };
 
+    //logout
+    const logout = () => {
+
+        checkIfisCancelled();
+
+        signOut(auth);
+    }
+
+    //login
+    const login = async(data) => {
+        checkIfisCancelled();
+
+        setLoading(true);
+        setError(false);
+
+        try {
+
+            await signInWithEmailAndPassword(auth, data.email, data.password);
+            setLoading(false);
+            
+        } catch (error) {
+
+             let systemErrorMessage;
+
+            if(error.code.includes("invalid-credential")) {
+                systemErrorMessage = "usuário ou senha incorretos.";
+            }else {
+                systemErrorMessage = "Ocorreu um erro, por favor tente mais tarde.";
+            }
+
+            setError(systemErrorMessage);
+            setLoading(false);
+            
+        }
+    }
+
     useEffect(() => {
         return () => setCancelled(true);
     }, []);
@@ -77,5 +112,7 @@ export const useAuthentication = () => {
         createUser,
         error,
         loading,
+        logout,
+        login,
     };
 };
