@@ -15,10 +15,11 @@ import Register from './pages/Register/Register.jsx';
 import Login from './pages/Login/Login.jsx';
 import CreatePost from './pages/CreatePost/CreatePost.jsx';
 import Dashboard from './pages/Dashboard/Dashboard.jsx';
+import Search from './pages/Search/Search.jsx';
+import Post from './pages/Post/Post.jsx';
 
 //context
 import { AuthProvider } from './context/AuthContext.jsx';
-
 
 
 function App() {
@@ -48,6 +49,8 @@ function App() {
               <Routes>
                 <Route path='/' element={<Home />} />
                 <Route path='/sobre' element={<About />} />
+                <Route path='/pesquisa' element={<Search />} />
+                <Route path='/posts/:id' element={<Post />} />
                 <Route path='/login' element={!user ? <Login /> : <Navigate to='/'/>} />
                 <Route path='/registro' element={!user ? <Register /> : <Navigate to='/'/>} />
                 <Route path='/posts/criar' element={!user ? <Navigate to='/login'/> : <CreatePost /> } />
