@@ -1,33 +1,35 @@
-import './App.css';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { onAuthStateChanged } from 'firebase/auth';
+import "./App.css";
 
-//hooks
-import { useState, useEffect } from 'react';
-import { useAuthentication } from './hooks/useAuthentication.jsx';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
 
-//pages
-import Home from './pages/Home/Home.jsx';
-import About from './pages/About/About.jsx';
-import Navbar from './components/Navbar.jsx';
-import Footer from './components/Footer.jsx';
-import Register from './pages/Register/Register.jsx';
-import Login from './pages/Login/Login.jsx';
-import CreatePost from './pages/CreatePost/CreatePost.jsx';
-import Dashboard from './pages/Dashboard/Dashboard.jsx';
-import Search from './pages/Search/Search.jsx';
-import Post from './pages/Post/Post.jsx';
+// hooks
+import { useState, useEffect } from "react";
+import { useAuthentication } from "./hooks/useAuthentication";
 
-//context
-import { AuthProvider } from './context/AuthContext.jsx';
+// pages
+import Home from "./pages/Home/Home";
+import About from "./pages/About/About";
+import Post from "./pages/Post/Post";
 
+// components
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import CreatePost from "./pages/CreatePost/CreatePost";
+import Search from "./pages/Search/Search";
+import Login from "./pages/Login/Login";
+import Register from "./pages/Register/Register";
+import Dashboard from "./pages/Dashboard/Dashboard";
+import EditPost from "./pages/EditPost/EditPost";
+
+// context
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
+  const [user, setUser] = useState(undefined);
+  const { auth } = useAuthentication();
 
-  const [user,setUser] = useState(undefined);
-  const {auth} = useAuthentication();
-
-  const loadingUser = user === undefined; //se user é igual a undefined, fica carregando...
+  const loadingUser = user === undefined;
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -35,33 +37,48 @@ function App() {
     });
   }, [auth]);
 
-  if(loadingUser) {
+  if (loadingUser) {
     return <p>Carregando...</p>;
   }
 
-
   return (
-    <div className='App'>
+    <div className="App">
       <AuthProvider value={{ user }}>
         <BrowserRouter>
           <Navbar />
-            <div className="container">
-              <Routes>
-                <Route path='/' element={<Home />} />
-                <Route path='/sobre' element={<About />} />
-                <Route path='/pesquisa' element={<Search />} />
-                <Route path='/posts/:id' element={<Post />} />
-                <Route path='/login' element={!user ? <Login /> : <Navigate to='/'/>} />
-                <Route path='/registro' element={!user ? <Register /> : <Navigate to='/'/>} />
-                <Route path='/posts/criar' element={!user ? <Navigate to='/login'/> : <CreatePost /> } />
-                <Route path='/dashboard' element={!user ? <Navigate to='/login'/> : <Dashboard />} /> 
-              </Routes>
-            </div>
-        <Footer />
+          <div className="container">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/sobre" element={<About />} />
+              <Route
+                path="/posts/criar"
+                element={user ? <CreatePost /> : <Navigate to="/login" />}
+              />
+              <Route
+                path="/posts/edit/:id"
+                element={user ? <EditPost /> : <Navigate to="/login" />}
+              />
+              <Route path="/posts/:id" element={<Post />} />
+              <Route path="/search" element={<Search />} />
+              <Route
+                path="/login"
+                element={!user ? <Login /> : <Navigate to="/" />}
+              />
+              <Route
+                path="/registro"
+                element={!user ? <Register /> : <Navigate to="/" />}
+              />
+              <Route
+                path="/dashboard"
+                element={user ? <Dashboard /> : <Navigate to="/login" />}
+              />
+            </Routes>
+          </div>
+          <Footer />
         </BrowserRouter>
       </AuthProvider>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
